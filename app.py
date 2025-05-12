@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
+from PyPDF2 import PdfReader
 import io
-import pdfplumber
 import os
 
 app = Flask(__name__)
@@ -13,12 +13,11 @@ def analizar_pdf():
 
     try:
         pdf_bytes = file.read()
+        reader = PdfReader(io.BytesIO(pdf_bytes))
 
-        # Abrimos el PDF usando pdfplumber
         texto = []
-        with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
-            for page in pdf.pages:
-                texto.append(page.extract_text() or "")
+        for page in reader.pages:
+            texto.append(page.extract_text() or "")
 
         full_text = "\n".join(texto)
 
@@ -33,5 +32,3 @@ def analizar_pdf():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
-
